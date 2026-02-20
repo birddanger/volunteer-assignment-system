@@ -1,0 +1,21 @@
+{
+  "name": "volunteer-assignment-system",
+  "version": "1.0.0",
+  "description": "Synchronized swimming volunteer assignment system",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "install-all": "npm install",
+    "dev": "npm run dev --workspaces",
+    "build": "npm run build --workspaces",
+    "backend:dev": "npm run dev -w backend",
+    "backend:build": "npm run build -w backend",
+    "backend:db:setup": "npm run db:setup -w backend",
+    "backend:db:seed": "npm run db:seed -w backend",
+    "frontend:dev": "npm run dev -w frontend",
+    "frontend:build": "npm run build -w frontend"
+  }
+}
