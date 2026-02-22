@@ -234,3 +234,116 @@ export async function listDisciplines(req: AuthenticatedRequest, res: Response) 
     res.status(500).json({ error: 'Failed to list disciplines' });
   }
 }
+
+// ── CSV helpers ──
+
+const CSV_HEADERS = ['team_name', 'swimmer_name', 'discipline', 'category', 'scheduled_date', 'scheduled_time', 'estimated_end_time', 'pool_location', 'notes'] as const;
+
+function parseCSVLine(line: string): string[] {
+  const fields: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (i + 1 < line.length && line[i + 1] === '"') {
+          current += '"';
+          i++; // skip escaped quote
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        current += ch;
+      }
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ',' || ch === ';') {
+      fields.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  fields.push(current.trim());
+  return fields;
+}
+
+// Import competition entries from CSV text (organizer only)
+export async function importCSV(req: AuthenticatedRequest, res: Response) {
+  try {
+    if (!req.user?.is_organizer) {
+      return res.status(403).json({ error: 'Only organizers can manage the competition schedule' });
+    }
+
+    const { eventId } = req.params;
+    const { csv } = req.body;
+
+    if (!csv || typeof csv !== 'string') {
+      return res.status(400).json({ error: 'CSV content is required' });
+    }
+
+    // Split into lines, skip empty
+    const lines = csv.split(/\r?\n/).filter(l => l.trim() !== '');
+    if (lines.length < 2) {
+      return res.status(400).json({ error: 'CSV must have a header row and at least one data row' });
+    }
+
+    // Validate header
+    const headerFields = parseCSVLine(lines[0]).map(h => h.toLowerCase().replace(/\s+/g, '_'));
+    const missingCols: string[] = [];
+    for (const required of ['discipline', 'scheduled_date', 'scheduled_time']) {
+      if (!headerFields.includes(required)) missingCols.push(required);
+    }
+    if (missingCols.length > 0) {
+      return res.status(400).json({ error: `Missing required columns: ${missingCols.join(', ')}` });
+    }
+
+    // Map column index
+    const colMap = new Map<string, number>();
+    headerFields.forEach((h, i) => { if (CSV_HEADERS.includes(h as any)) colMap.set(h, i); });
+
+    const errors: string[] = [];
+    let created = 0;
+
+    for (let i = 1; i < lines.length; i++) {
+      const fields = parseCSVLine(lines[i]);
+      const row: Record<string, string> = {};
+      for (const [col, idx] of colMap.entries()) {
+        row[col] = fields[idx] || '';
+      }
+
+      // Basic validation
+      if (!row.discipline) { errors.push(`Row ${i + 1}: discipline is required`); continue; }
+      if (!row.scheduled_date || !/^\d{4}-\d{2}-\d{2}$/.test(row.scheduled_date)) { errors.push(`Row ${i + 1}: invalid date (expected YYYY-MM-DD)`); continue; }
+      if (!row.scheduled_time || !/^\d{2}:\d{2}(:\d{2})?$/.test(row.scheduled_time)) { errors.push(`Row ${i + 1}: invalid time (expected HH:MM)`); continue; }
+      if (!row.team_name && !row.swimmer_name) { errors.push(`Row ${i + 1}: either team_name or swimmer_name is required`); continue; }
+      if (row.estimated_end_time && !/^\d{2}:\d{2}(:\d{2})?$/.test(row.estimated_end_time)) { errors.push(`Row ${i + 1}: invalid estimated_end_time (expected HH:MM)`); continue; }
+
+      const entryId = uuidv4();
+      try {
+        await query(
+          `INSERT INTO competition_entries (entry_id, event_id, team_name, swimmer_name, discipline, category, scheduled_date, scheduled_time, estimated_end_time, pool_location, notes, created_by)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+          [
+            entryId, eventId,
+            row.team_name || null, row.swimmer_name || null,
+            row.discipline, row.category || null,
+            row.scheduled_date, row.scheduled_time,
+            row.estimated_end_time || null, row.pool_location || null,
+            row.notes || null, req.user!.user_id
+          ]
+        );
+        created++;
+      } catch (dbErr: any) {
+        errors.push(`Row ${i + 1}: database error — ${dbErr.message}`);
+      }
+    }
+
+    const totalRows = lines.length - 1;
+    res.status(201).json({ created, total: totalRows, errors: errors.length > 0 ? errors : undefined });
+  } catch (error) {
+    console.error('Import CSV error:', error);
+    res.status(500).json({ error: 'Failed to import CSV' });
+  }
+}

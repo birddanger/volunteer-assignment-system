@@ -76,16 +76,18 @@ export const uuidParamSchema = z.string().uuid('Invalid ID format');
 
 // ── Competition schedule schemas ──
 
+const emptyToNull = (val: unknown) => (val === '' ? null : val);
+
 export const createCompetitionEntrySchema = z.object({
-  team_name: z.string().max(255).optional().nullable(),
-  swimmer_name: z.string().max(255).optional().nullable(),
+  team_name: z.preprocess(emptyToNull, z.string().max(255).optional().nullable()),
+  swimmer_name: z.preprocess(emptyToNull, z.string().max(255).optional().nullable()),
   discipline: z.string().min(1, 'Discipline is required').max(255).trim(),
-  category: z.string().max(255).optional().nullable(),
+  category: z.preprocess(emptyToNull, z.string().max(255).optional().nullable()),
   scheduled_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
   scheduled_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, 'Invalid time format (HH:MM)'),
-  estimated_end_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, 'Invalid time format (HH:MM)').optional().nullable(),
-  pool_location: z.string().max(255).optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  estimated_end_time: z.preprocess(emptyToNull, z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, 'Invalid time format (HH:MM)').optional().nullable()),
+  pool_location: z.preprocess(emptyToNull, z.string().max(255).optional().nullable()),
+  notes: z.preprocess(emptyToNull, z.string().max(2000).optional().nullable()),
 }).refine(data => data.team_name || data.swimmer_name, {
   message: 'Either team name or swimmer name is required',
   path: ['team_name'],

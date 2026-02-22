@@ -8,6 +8,7 @@ import {
   deleteAllEntries,
   listTeams,
   listDisciplines,
+  importCSV,
 } from '../controllers/competitionController.js';
 import { authMiddleware, organizerMiddleware } from '../middleware/auth.js';
 
@@ -21,6 +22,7 @@ router.get('/disciplines', authMiddleware, listDisciplines);
 // Write endpoints — organizers only
 router.post('/', authMiddleware, organizerMiddleware, createEntry);
 router.post('/bulk', authMiddleware, organizerMiddleware, bulkCreateEntries);
+router.post('/import-csv', authMiddleware, organizerMiddleware, importCSV);
 router.put('/:entryId', authMiddleware, organizerMiddleware, updateEntry);
 router.delete('/:entryId', authMiddleware, organizerMiddleware, deleteEntry);
 router.delete('/', authMiddleware, organizerMiddleware, deleteAllEntries);

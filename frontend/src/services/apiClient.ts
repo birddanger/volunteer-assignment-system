@@ -280,6 +280,11 @@ class APIClient {
     return response.data;
   }
 
+  async importCompetitionCSV(eventId: string, csv: string) {
+    const response = await this.client.post(`/events/${eventId}/competition/import-csv`, { csv });
+    return response.data;
+  }
+
   async listCompetitionTeams(eventId: string) {
     const response = await this.client.get(`/events/${eventId}/competition/teams`);
     return response.data;

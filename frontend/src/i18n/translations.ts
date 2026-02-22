@@ -251,6 +251,17 @@ export interface Translations {
     totalTeams: string;
     competitionDays: string;
     disciplines: string;
+    importCSV: string;
+    downloadTemplate: string;
+    importFromFile: string;
+    selectFile: string;
+    importBtn: string;
+    importing: string;
+    importSuccess: string;
+    importPartial: string;
+    importErrors: string;
+    importFailed: string;
+    csvFormatHint: string;
   };
 }
 
@@ -490,6 +501,17 @@ export const en: Translations = {
     totalTeams: 'Teams',
     competitionDays: 'Competition Days',
     disciplines: 'Disciplines',
+    importCSV: 'Import CSV',
+    downloadTemplate: 'Download Template',
+    importFromFile: 'Import from File',
+    selectFile: 'Select CSV file',
+    importBtn: 'Import',
+    importing: 'Importing...',
+    importSuccess: '{count} entries imported successfully!',
+    importPartial: '{created} of {total} entries imported. {errorCount} had errors.',
+    importErrors: 'Import errors',
+    importFailed: 'Failed to import CSV',
+    csvFormatHint: 'Use the template file for the correct format. Columns: team_name, swimmer_name, discipline, category, scheduled_date (YYYY-MM-DD), scheduled_time (HH:MM), estimated_end_time, pool_location, notes.',
   },
 };
 
@@ -729,6 +751,17 @@ export const fi: Translations = {
     totalTeams: 'Joukkueet',
     competitionDays: 'Kilpailupäivät',
     disciplines: 'Lajit',
+    importCSV: 'Tuo CSV',
+    downloadTemplate: 'Lataa mallipohja',
+    importFromFile: 'Tuo tiedostosta',
+    selectFile: 'Valitse CSV-tiedosto',
+    importBtn: 'Tuo',
+    importing: 'Tuodaan...',
+    importSuccess: '{count} merkintää tuotu onnistuneesti!',
+    importPartial: '{created}/{total} merkintää tuotu. {errorCount} virheellistä.',
+    importErrors: 'Tuontivirheet',
+    importFailed: 'CSV-tuonti epäonnistui',
+    csvFormatHint: 'Käytä mallitiedostoa oikeaan muotoon. Sarakkeet: team_name, swimmer_name, discipline, category, scheduled_date (VVVV-KK-PP), scheduled_time (TT:MM), estimated_end_time, pool_location, notes.',
   },
 };
 

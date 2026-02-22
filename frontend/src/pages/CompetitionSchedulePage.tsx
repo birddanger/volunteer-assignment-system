@@ -52,6 +52,12 @@ export default function CompetitionSchedulePage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
 
+  // Import
+  const [showImport, setShowImport] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importErrors, setImportErrors] = useState<string[]>([]);
+
   // Highlight: team for the logged-in volunteer
   const myTeam = user?.swimmer_team;
 
@@ -154,11 +160,21 @@ export default function CompetitionSchedulePage() {
     setSaving(true);
     setError(null);
     try {
+      // Convert empty strings to undefined for optional fields
+      const cleaned = {
+        ...form,
+        team_name: form.team_name || undefined,
+        swimmer_name: form.swimmer_name || undefined,
+        category: form.category || undefined,
+        estimated_end_time: form.estimated_end_time || undefined,
+        pool_location: form.pool_location || undefined,
+        notes: form.notes || undefined,
+      };
       if (editingId) {
-        await apiClient.updateCompetitionEntry(currentEvent, editingId, form);
+        await apiClient.updateCompetitionEntry(currentEvent, editingId, cleaned);
         setSuccessMsg(t.competition.entryUpdated);
       } else {
-        await apiClient.createCompetitionEntry(currentEvent, form);
+        await apiClient.createCompetitionEntry(currentEvent, cleaned);
         setSuccessMsg(t.competition.entryCreated);
       }
       await refreshEntries();
@@ -196,6 +212,36 @@ export default function CompetitionSchedulePage() {
       await refreshEntries();
     } catch (err: any) {
       setError(err.response?.data?.error || t.competition.deleteFailed);
+    }
+  }
+
+  async function handleImport() {
+    if (!importFile || !currentEvent) return;
+    setImporting(true);
+    setError(null);
+    setImportErrors([]);
+    try {
+      const text = await importFile.text();
+      const result = await apiClient.importCompetitionCSV(currentEvent, text);
+      if (result.errors && result.errors.length > 0) {
+        setImportErrors(result.errors);
+        setSuccessMsg(
+          t.competition.importPartial
+            .replace('{created}', String(result.created))
+            .replace('{total}', String(result.total))
+            .replace('{errorCount}', String(result.errors.length))
+        );
+      } else {
+        setSuccessMsg(t.competition.importSuccess.replace('{count}', String(result.created)));
+      }
+      await refreshEntries();
+      setImportFile(null);
+      setShowImport(false);
+      setTimeout(() => setSuccessMsg(null), 5000);
+    } catch (err: any) {
+      setError(err.response?.data?.error || t.competition.importFailed);
+    } finally {
+      setImporting(false);
     }
   }
 
@@ -242,6 +288,14 @@ export default function CompetitionSchedulePage() {
               className="btn-primary text-sm"
             >
               {showForm ? t.competition.hideForm : t.competition.addEntry}
+            </button>
+          )}
+          {isOrganizer && (
+            <button
+              onClick={() => setShowImport(!showImport)}
+              className="btn-secondary text-sm"
+            >
+              📁 {t.competition.importCSV}
             </button>
           )}
         </div>
@@ -314,6 +368,55 @@ export default function CompetitionSchedulePage() {
               )}
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Import panel */}
+      {showImport && isOrganizer && (
+        <div className="card mb-6">
+          <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
+            📁 {t.competition.importFromFile}
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            {t.competition.csvFormatHint}
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href="/competition_schedule_template.csv"
+              download="competition_schedule_template.csv"
+              className="btn-secondary text-sm inline-flex items-center gap-1"
+            >
+              ⬇️ {t.competition.downloadTemplate}
+            </a>
+            <label className="btn-secondary text-sm cursor-pointer inline-flex items-center gap-1">
+              📄 {importFile ? importFile.name : t.competition.selectFile}
+              <input
+                type="file"
+                accept=".csv,text/csv"
+                className="hidden"
+                onChange={e => setImportFile(e.target.files?.[0] || null)}
+              />
+            </label>
+            {importFile && (
+              <button
+                onClick={handleImport}
+                disabled={importing}
+                className="btn-primary text-sm"
+              >
+                {importing ? t.competition.importing : t.competition.importBtn}
+              </button>
+            )}
+          </div>
+          {importErrors.length > 0 && (
+            <details className="mt-3">
+              <summary className="text-sm text-red-600 dark:text-red-400 cursor-pointer font-medium">
+                {t.competition.importErrors} ({importErrors.length})
+              </summary>
+              <ul className="mt-1 text-xs text-red-500 dark:text-red-400 space-y-0.5 max-h-40 overflow-y-auto">
+                {importErrors.map((e, i) => <li key={i}>• {e}</li>)}
+              </ul>
+            </details>
+          )}
         </div>
       )}
 
