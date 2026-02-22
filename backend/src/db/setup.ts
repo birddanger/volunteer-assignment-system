@@ -151,7 +151,30 @@ export async function setupDatabase() {
     );
   `);
 
+  // Competition schedule table
+  await query(`
+    CREATE TABLE IF NOT EXISTS competition_entries (
+      entry_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      event_id UUID NOT NULL REFERENCES events(event_id) ON DELETE CASCADE,
+      team_name VARCHAR(255),
+      swimmer_name VARCHAR(255),
+      discipline VARCHAR(255) NOT NULL,
+      category VARCHAR(255),
+      scheduled_date DATE NOT NULL,
+      scheduled_time TIME NOT NULL,
+      estimated_end_time TIME,
+      pool_location VARCHAR(255),
+      notes TEXT,
+      created_by UUID NOT NULL REFERENCES users(user_id),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
   // Create indexes
+  await query(`CREATE INDEX IF NOT EXISTS idx_competition_entries_event_id ON competition_entries(event_id);`);
+  await query(`CREATE INDEX IF NOT EXISTS idx_competition_entries_date ON competition_entries(event_id, scheduled_date);`);
+  await query(`CREATE INDEX IF NOT EXISTS idx_competition_entries_team ON competition_entries(team_name);`);
   await query(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);`);
   await query(`CREATE INDEX IF NOT EXISTS idx_events_created_by ON events(created_by);`);
   await query(`CREATE INDEX IF NOT EXISTS idx_sessions_event_id ON sessions(event_id);`);

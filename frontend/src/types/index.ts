@@ -114,3 +114,18 @@ export interface EventTemplate {
   tasks_count: number;
   created_at: string;
 }
+
+export interface CompetitionEntry {
+  entry_id: string;
+  event_id: string;
+  team_name?: string;
+  swimmer_name?: string;
+  discipline: string;
+  category?: string;
+  scheduled_date: string;
+  scheduled_time: string;
+  estimated_end_time?: string;
+  pool_location?: string;
+  notes?: string;
+  created_at: string;
+}

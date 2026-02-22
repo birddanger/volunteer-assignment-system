@@ -241,6 +241,54 @@ class APIClient {
     const response = await this.client.delete(`/templates/${templateId}`);
     return response.data;
   }
+
+  // --- Competition Schedule ---
+  async listCompetitionEntries(eventId: string, params?: { date?: string; team?: string; search?: string }) {
+    const response = await this.client.get(`/events/${eventId}/competition`, { params });
+    return response.data;
+  }
+
+  async createCompetitionEntry(eventId: string, entry: {
+    team_name?: string; swimmer_name?: string; discipline: string; category?: string;
+    scheduled_date: string; scheduled_time: string; estimated_end_time?: string;
+    pool_location?: string; notes?: string;
+  }) {
+    const response = await this.client.post(`/events/${eventId}/competition`, entry);
+    return response.data;
+  }
+
+  async bulkCreateCompetitionEntries(eventId: string, entries: Array<{
+    team_name?: string; swimmer_name?: string; discipline: string; category?: string;
+    scheduled_date: string; scheduled_time: string; estimated_end_time?: string;
+    pool_location?: string; notes?: string;
+  }>) {
+    const response = await this.client.post(`/events/${eventId}/competition/bulk`, { entries });
+    return response.data;
+  }
+
+  async updateCompetitionEntry(eventId: string, entryId: string, entry: {
+    team_name?: string; swimmer_name?: string; discipline: string; category?: string;
+    scheduled_date: string; scheduled_time: string; estimated_end_time?: string;
+    pool_location?: string; notes?: string;
+  }) {
+    const response = await this.client.put(`/events/${eventId}/competition/${entryId}`, entry);
+    return response.data;
+  }
+
+  async deleteCompetitionEntry(eventId: string, entryId: string) {
+    const response = await this.client.delete(`/events/${eventId}/competition/${entryId}`);
+    return response.data;
+  }
+
+  async listCompetitionTeams(eventId: string) {
+    const response = await this.client.get(`/events/${eventId}/competition/teams`);
+    return response.data;
+  }
+
+  async listCompetitionDisciplines(eventId: string) {
+    const response = await this.client.get(`/events/${eventId}/competition/disciplines`);
+    return response.data;
+  }
 }
 
 export default new APIClient();

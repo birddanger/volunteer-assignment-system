@@ -12,6 +12,7 @@ export interface Translations {
     logout: string;
     login: string;
     register: string;
+    competition: string;
   };
   // Common
   common: {
@@ -208,6 +209,49 @@ export interface Translations {
     saveFailed: string;
     memberSince: string;
   };
+  // Competition schedule
+  competition: {
+    title: string;
+    subtitle: string;
+    addEntry: string;
+    editEntry: string;
+    hideForm: string;
+    teamName: string;
+    teamNamePlaceholder: string;
+    swimmerName: string;
+    swimmerNamePlaceholder: string;
+    discipline: string;
+    disciplinePlaceholder: string;
+    category: string;
+    categoryPlaceholder: string;
+    estimatedEnd: string;
+    poolLocation: string;
+    poolLocationPlaceholder: string;
+    notes: string;
+    notesPlaceholder: string;
+    createBtn: string;
+    updateBtn: string;
+    edit: string;
+    delete: string;
+    entryCreated: string;
+    entryUpdated: string;
+    saveFailed: string;
+    deleteConfirm: string;
+    deleteFailed: string;
+    failedToLoad: string;
+    noEntries: string;
+    noEntriesHint: string;
+    noEntriesOrganizerHint: string;
+    searchPlaceholder: string;
+    allTeams: string;
+    myTeamHint: string;
+    filterMyTeam: string;
+    showAll: string;
+    totalEntries: string;
+    totalTeams: string;
+    competitionDays: string;
+    disciplines: string;
+  };
 }
 
 export const en: Translations = {
@@ -221,6 +265,7 @@ export const en: Translations = {
     logout: 'Logout',
     login: 'Login',
     register: 'Register',
+    competition: 'Competition',
   },
   common: {
     loading: 'Loading...',
@@ -404,6 +449,48 @@ export const en: Translations = {
     saveFailed: 'Failed to save profile',
     memberSince: 'Member since',
   },
+  competition: {
+    title: 'Competition Schedule',
+    subtitle: 'See when swimmers and teams are set to compete',
+    addEntry: '+ Add Entry',
+    editEntry: 'Edit Entry',
+    hideForm: 'Hide Form',
+    teamName: 'Team',
+    teamNamePlaceholder: 'e.g. Dolphins SC',
+    swimmerName: 'Swimmer',
+    swimmerNamePlaceholder: 'e.g. Anna Johnson',
+    discipline: 'Discipline',
+    disciplinePlaceholder: 'e.g. 100m Freestyle',
+    category: 'Category',
+    categoryPlaceholder: 'e.g. Girls 10-12',
+    estimatedEnd: 'Est. End Time',
+    poolLocation: 'Pool / Lane',
+    poolLocationPlaceholder: 'e.g. Pool A, Lane 3',
+    notes: 'Notes',
+    notesPlaceholder: 'Optional notes',
+    createBtn: 'Add Entry',
+    updateBtn: 'Update Entry',
+    edit: 'Edit',
+    delete: 'Delete',
+    entryCreated: 'Entry added to schedule!',
+    entryUpdated: 'Entry updated!',
+    saveFailed: 'Failed to save entry',
+    deleteConfirm: 'Delete this competition entry?',
+    deleteFailed: 'Failed to delete entry',
+    failedToLoad: 'Failed to load competition schedule',
+    noEntries: 'No competition entries yet',
+    noEntriesHint: 'The organizer has not added the competition schedule yet.',
+    noEntriesOrganizerHint: 'Click "+ Add Entry" to start building the competition schedule.',
+    searchPlaceholder: 'Search teams, swimmers, disciplines...',
+    allTeams: 'All teams',
+    myTeamHint: 'Your team: {team}',
+    filterMyTeam: 'Show my team only',
+    showAll: 'Show all',
+    totalEntries: 'Total Entries',
+    totalTeams: 'Teams',
+    competitionDays: 'Competition Days',
+    disciplines: 'Disciplines',
+  },
 };
 
 export const fi: Translations = {
@@ -417,6 +504,7 @@ export const fi: Translations = {
     logout: 'Kirjaudu ulos',
     login: 'Kirjaudu',
     register: 'Rekisteröidy',
+    competition: 'Kilpailu',
   },
   common: {
     loading: 'Ladataan...',
@@ -599,6 +687,48 @@ export const fi: Translations = {
     saved: 'Profiili tallennettu!',
     saveFailed: 'Profiilin tallennus epäonnistui',
     memberSince: 'Jäsen alkaen',
+  },
+  competition: {
+    title: 'Kilpailuaikataulu',
+    subtitle: 'Katso milloin uimarit ja joukkueet kilpailevat',
+    addEntry: '+ Lisää merkintä',
+    editEntry: 'Muokkaa merkintää',
+    hideForm: 'Piilota lomake',
+    teamName: 'Joukkue',
+    teamNamePlaceholder: 'esim. Dolphins SC',
+    swimmerName: 'Uimari',
+    swimmerNamePlaceholder: 'esim. Anna Virtanen',
+    discipline: 'Laji',
+    disciplinePlaceholder: 'esim. 100m vapaauinti',
+    category: 'Sarja',
+    categoryPlaceholder: 'esim. Tytöt 10-12',
+    estimatedEnd: 'Arvioitu loppu',
+    poolLocation: 'Allas / Rata',
+    poolLocationPlaceholder: 'esim. Allas A, Rata 3',
+    notes: 'Muistiinpanot',
+    notesPlaceholder: 'Valinnaisia muistiinpanoja',
+    createBtn: 'Lisää merkintä',
+    updateBtn: 'Päivitä merkintä',
+    edit: 'Muokkaa',
+    delete: 'Poista',
+    entryCreated: 'Merkintä lisätty aikatauluun!',
+    entryUpdated: 'Merkintä päivitetty!',
+    saveFailed: 'Merkinnän tallennus epäonnistui',
+    deleteConfirm: 'Poistetaanko tämä kilpailumerkintä?',
+    deleteFailed: 'Merkinnän poisto epäonnistui',
+    failedToLoad: 'Kilpailuaikataulun lataus epäonnistui',
+    noEntries: 'Ei kilpailumerkintöjä',
+    noEntriesHint: 'Järjestäjä ei ole vielä lisännyt kilpailuaikataulua.',
+    noEntriesOrganizerHint: 'Klikkaa "+ Lisää merkintä" aloittaaksesi aikataulun luomisen.',
+    searchPlaceholder: 'Hae joukkueita, uimareita, lajeja...',
+    allTeams: 'Kaikki joukkueet',
+    myTeamHint: 'Oma joukkueesi: {team}',
+    filterMyTeam: 'Näytä vain oma joukkue',
+    showAll: 'Näytä kaikki',
+    totalEntries: 'Merkintöjä yht.',
+    totalTeams: 'Joukkueet',
+    competitionDays: 'Kilpailupäivät',
+    disciplines: 'Lajit',
   },
 };
 
