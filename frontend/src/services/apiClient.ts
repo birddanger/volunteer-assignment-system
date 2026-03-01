@@ -60,6 +60,22 @@ class APIClient {
     return response.data;
   }
 
+  async changePassword(currentPassword: string, newPassword: string) {
+    const response = await this.client.put('/auth/profile/password', {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+    return response.data;
+  }
+
+  async adminCreateUser(data: {
+    email: string; password: string; first_name: string; last_name: string;
+    phone?: string; swimmer_team?: string; is_organizer?: boolean;
+  }) {
+    const response = await this.client.post('/users', data);
+    return response.data;
+  }
+
   // Event endpoints
   async createEvent(name: string, startDate: string, endDate: string, location: string, description?: string) {
     const response = await this.client.post('/events', {

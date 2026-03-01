@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { listUsers, updateUserRole } from '../controllers/userController.js';
+import { listUsers, updateUserRole, adminCreateUser } from '../controllers/userController.js';
 import { authMiddleware, organizerMiddleware } from '../middleware/auth.js';
 
 const router = Router();
@@ -8,6 +8,7 @@ const router = Router();
 router.use(authMiddleware, organizerMiddleware);
 
 router.get('/', listUsers);
+router.post('/', adminCreateUser);
 router.patch('/:userId/role', updateUserRole);
 
 export default router;

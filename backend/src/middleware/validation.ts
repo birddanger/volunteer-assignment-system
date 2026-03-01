@@ -21,6 +21,21 @@ export const updateProfileSchema = z.object({
   swimmer_team: z.string().max(100).optional().nullable(),
 });
 
+export const changePasswordSchema = z.object({
+  current_password: z.string().min(1, 'Current password is required'),
+  new_password: z.string().min(8, 'New password must be at least 8 characters').max(128),
+});
+
+export const adminCreateUserSchema = z.object({
+  email: z.string().email('Invalid email format').max(255),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(128),
+  first_name: z.string().min(1, 'First name is required').max(100).trim(),
+  last_name: z.string().min(1, 'Last name is required').max(100).trim(),
+  phone: z.string().max(20).optional().nullable(),
+  swimmer_team: z.string().max(100).optional().nullable(),
+  is_organizer: z.boolean().optional().default(false),
+});
+
 // ── Event schemas ──
 
 export const createEventSchema = z.object({

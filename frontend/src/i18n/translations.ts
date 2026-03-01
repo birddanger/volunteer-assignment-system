@@ -40,6 +40,15 @@ export interface Translations {
     loadFailed: string;
     updateFailed: string;
     noUsers: string;
+    // Admin create user
+    createUser: string;
+    createUserBtn: string;
+    creating: string;
+    userCreated: string;
+    createFailed: string;
+    emailExists: string;
+    setPassword: string;
+    makeAdmin: string;
   };
   // Common
   common: {
@@ -235,6 +244,16 @@ export interface Translations {
     saved: string;
     saveFailed: string;
     memberSince: string;
+    // Password change
+    changePassword: string;
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+    passwordMismatch: string;
+    changingPassword: string;
+    passwordChanged: string;
+    changePasswordFailed: string;
+    wrongPassword: string;
   };
   // Event access control
   eventAccess: {
@@ -369,6 +388,14 @@ export const en: Translations = {
     loadFailed: 'Failed to load users.',
     updateFailed: 'Failed to update user role.',
     noUsers: 'No users found.',
+    createUser: 'Create User',
+    createUserBtn: 'Create User',
+    creating: 'Creating...',
+    userCreated: 'User {name} created successfully!',
+    createFailed: 'Failed to create user',
+    emailExists: 'Email already registered',
+    setPassword: 'Set Password',
+    makeAdmin: 'Make Admin',
   },
   common: {
     loading: 'Loading...',
@@ -589,6 +616,15 @@ export const en: Translations = {
     saved: 'Profile saved successfully!',
     saveFailed: 'Failed to save profile',
     memberSince: 'Member since',
+    changePassword: 'Change Password',
+    currentPassword: 'Current Password',
+    newPassword: 'New Password',
+    confirmPassword: 'Confirm New Password',
+    passwordMismatch: 'Passwords do not match',
+    changingPassword: 'Changing...',
+    passwordChanged: 'Password changed successfully!',
+    changePasswordFailed: 'Failed to change password',
+    wrongPassword: 'Current password is incorrect',
   },
   competition: {
     title: 'Competition Schedule',
@@ -683,6 +719,14 @@ export const fi: Translations = {
     loadFailed: 'Käyttäjien lataus epäonnistui.',
     updateFailed: 'Käyttäjäroolin päivitys epäonnistui.',
     noUsers: 'Käyttäjiä ei löytynyt.',
+    createUser: 'Luo käyttäjä',
+    createUserBtn: 'Luo käyttäjä',
+    creating: 'Luodaan...',
+    userCreated: 'Käyttäjä {name} luotu onnistuneesti!',
+    createFailed: 'Käyttäjän luonti epäonnistui',
+    emailExists: 'Sähköposti on jo rekisteröity',
+    setPassword: 'Aseta salasana',
+    makeAdmin: 'Tee ylläpitäjäksi',
   },
   common: {
     loading: 'Ladataan...',
@@ -903,6 +947,15 @@ export const fi: Translations = {
     saved: 'Profiili tallennettu!',
     saveFailed: 'Profiilin tallennus epäonnistui',
     memberSince: 'Jäsen alkaen',
+    changePassword: 'Vaihda salasana',
+    currentPassword: 'Nykyinen salasana',
+    newPassword: 'Uusi salasana',
+    confirmPassword: 'Vahvista uusi salasana',
+    passwordMismatch: 'Salasanat eivät täsmää',
+    changingPassword: 'Vaihdetaan...',
+    passwordChanged: 'Salasana vaihdettu onnistuneesti!',
+    changePasswordFailed: 'Salasanan vaihto epäonnistui',
+    wrongPassword: 'Nykyinen salasana on virheellinen',
   },
   competition: {
     title: 'Kilpailuaikataulu',

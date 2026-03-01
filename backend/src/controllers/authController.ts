@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { query } from '../db/pool.js';
 import { AuthenticatedRequest } from '../middleware/auth.js';
-import { registerSchema, loginSchema, updateProfileSchema } from '../middleware/validation.js';
+import { registerSchema, loginSchema, updateProfileSchema, changePasswordSchema } from '../middleware/validation.js';
 
 export async function register(req: AuthenticatedRequest, res: Response) {
   try {
@@ -155,6 +155,43 @@ export async function updateProfile(req: AuthenticatedRequest, res: Response) {
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({ error: 'Failed to update profile' });
+  }
+}
+
+export async function changePassword(req: AuthenticatedRequest, res: Response) {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const parsed = changePasswordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.errors[0].message });
+    }
+    const { current_password, new_password } = parsed.data;
+
+    // Verify current password
+    const userResult = await query('SELECT password_hash FROM users WHERE user_id = $1', [req.user.user_id]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const passwordMatch = await bcrypt.compare(current_password, userResult.rows[0].password_hash);
+    if (!passwordMatch) {
+      return res.status(403).json({ error: 'Current password is incorrect' });
+    }
+
+    // Hash new password and update
+    const newHash = await bcrypt.hash(new_password, 10);
+    await query(
+      'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2',
+      [newHash, req.user.user_id]
+    );
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ error: 'Failed to change password' });
   }
 }
 

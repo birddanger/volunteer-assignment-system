@@ -27,6 +27,14 @@ export default function UserManagementPage() {
   const [toggling, setToggling] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
 
+  // Create user form
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    email: '', password: '', first_name: '', last_name: '',
+    phone: '', swimmer_team: '', is_organizer: false,
+  });
+
   useEffect(() => {
     loadUsers();
   }, []);
@@ -67,6 +75,34 @@ export default function UserManagementPage() {
       setTimeout(() => setError(''), 4000);
     } finally {
       setToggling(null);
+    }
+  }
+
+  async function handleCreateUser(e: React.FormEvent) {
+    e.preventDefault();
+    setCreating(true);
+    setError('');
+    try {
+      const newUser = await apiClient.adminCreateUser({
+        email: createForm.email,
+        password: createForm.password,
+        first_name: createForm.first_name,
+        last_name: createForm.last_name,
+        phone: createForm.phone || undefined,
+        swimmer_team: createForm.swimmer_team || undefined,
+        is_organizer: createForm.is_organizer,
+      });
+      setUsers(prev => [newUser, ...prev]);
+      setSuccessMsg(t.userManagement.userCreated.replace('{name}', `${newUser.first_name} ${newUser.last_name}`));
+      setCreateForm({ email: '', password: '', first_name: '', last_name: '', phone: '', swimmer_team: '', is_organizer: false });
+      setShowCreateForm(false);
+      setTimeout(() => setSuccessMsg(''), 4000);
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || t.userManagement.createFailed;
+      setError(msg);
+      setTimeout(() => setError(''), 4000);
+    } finally {
+      setCreating(false);
     }
   }
 
@@ -121,6 +157,117 @@ export default function UserManagementPage() {
           <p className="text-2xl font-bold text-green-600 dark:text-green-400">{volunteerCount}</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">{t.userManagement.volunteers}</p>
         </div>
+      </div>
+
+      {/* Create User Toggle + Form */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowCreateForm(!showCreateForm)}
+          className="btn-primary text-sm"
+        >
+          {showCreateForm ? '✕ ' + t.eventSetup.cancel : '+ ' + t.userManagement.createUser}
+        </button>
+
+        {showCreateForm && (
+          <div className="mt-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              {t.userManagement.createUser}
+            </h3>
+            <form onSubmit={handleCreateUser}>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t.registerPage.firstName} *
+                  </label>
+                  <input
+                    type="text"
+                    className="input w-full"
+                    value={createForm.first_name}
+                    onChange={e => setCreateForm({ ...createForm, first_name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t.registerPage.lastName} *
+                  </label>
+                  <input
+                    type="text"
+                    className="input w-full"
+                    value={createForm.last_name}
+                    onChange={e => setCreateForm({ ...createForm, last_name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t.common.email} *
+                  </label>
+                  <input
+                    type="email"
+                    className="input w-full"
+                    value={createForm.email}
+                    onChange={e => setCreateForm({ ...createForm, email: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t.userManagement.setPassword} *
+                  </label>
+                  <input
+                    type="password"
+                    className="input w-full"
+                    value={createForm.password}
+                    onChange={e => setCreateForm({ ...createForm, password: e.target.value })}
+                    minLength={8}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t.common.phone}
+                  </label>
+                  <input
+                    type="text"
+                    className="input w-full"
+                    value={createForm.phone}
+                    onChange={e => setCreateForm({ ...createForm, phone: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t.registerPage.swimmerTeam}
+                  </label>
+                  <input
+                    type="text"
+                    className="input w-full"
+                    value={createForm.swimmer_team}
+                    onChange={e => setCreateForm({ ...createForm, swimmer_team: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="mt-4 flex items-center justify-between">
+                <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={createForm.is_organizer}
+                    onChange={e => setCreateForm({ ...createForm, is_organizer: e.target.checked })}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  {t.userManagement.makeAdmin}
+                </label>
+                <button
+                  type="submit"
+                  disabled={creating}
+                  className="btn-primary disabled:opacity-50"
+                >
+                  {creating ? t.userManagement.creating : t.userManagement.createUserBtn}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
 
       {/* Search */}

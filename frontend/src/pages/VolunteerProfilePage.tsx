@@ -15,6 +15,14 @@ export default function VolunteerProfilePage() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
 
+  // Password change state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordMsg, setPasswordMsg] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
   const [history, setHistory] = useState<AssignmentHistoryItem[]>([]);
   const [stats, setStats] = useState<ProfileStats>({ totalAssignments: 0, totalHours: 0, totalEvents: 0 });
   const [loadingHistory, setLoadingHistory] = useState(true);
@@ -47,6 +55,40 @@ export default function VolunteerProfilePage() {
       setError(t.profile.saveFailed);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordMsg('');
+    setPasswordError('');
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError(t.profile.passwordMismatch);
+      return;
+    }
+    if (newPassword.length < 8) {
+      setPasswordError('Min. 8 characters');
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      await apiClient.changePassword(currentPassword, newPassword);
+      setPasswordMsg(t.profile.passwordChanged);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordMsg(''), 4000);
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || t.profile.changePasswordFailed;
+      if (msg.includes('incorrect') || msg.includes('virheellinen')) {
+        setPasswordError(t.profile.wrongPassword);
+      } else {
+        setPasswordError(msg);
+      }
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -144,6 +186,70 @@ export default function VolunteerProfilePage() {
               className="btn-primary disabled:opacity-50"
             >
               {saving ? t.profile.saving : t.profile.saveBtn}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Change Password */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow mb-8">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            🔑 {t.profile.changePassword}
+          </h2>
+        </div>
+        <form onSubmit={handleChangePassword} className="p-6 space-y-4">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t.profile.currentPassword}
+              </label>
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={e => setCurrentPassword(e.target.value)}
+                required
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t.profile.newPassword}
+              </label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                required
+                minLength={8}
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {t.profile.confirmPassword}
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                required
+                minLength={8}
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+
+          {passwordError && <p className="text-sm text-red-600">{passwordError}</p>}
+          {passwordMsg && <p className="text-sm text-green-600">{passwordMsg}</p>}
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={changingPassword}
+              className="btn-primary disabled:opacity-50"
+            >
+              {changingPassword ? t.profile.changingPassword : t.profile.changePassword}
             </button>
           </div>
         </form>
