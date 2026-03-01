@@ -236,6 +236,45 @@ export interface Translations {
     saveFailed: string;
     memberSince: string;
   };
+  // Event access control
+  eventAccess: {
+    visibility: string;
+    public: string;
+    publicDesc: string;
+    inviteCode: string;
+    inviteCodeDesc: string;
+    teamsOnly: string;
+    teamsOnlyDesc: string;
+    codeOrTeams: string;
+    codeOrTeamsDesc: string;
+    inviteCodeLabel: string;
+    copyCode: string;
+    codeCopied: string;
+    regenerateCode: string;
+    invitedTeams: string;
+    addTeam: string;
+    teamPlaceholder: string;
+    removeTeam: string;
+    members: string;
+    memberCount: string;
+    joinEvent: string;
+    leaveEvent: string;
+    leaveConfirm: string;
+    enterInviteCode: string;
+    inviteCodePlaceholder: string;
+    joinBtn: string;
+    joining: string;
+    joined: string;
+    joinFailed: string;
+    invalidCode: string;
+    teamNotInvited: string;
+    noTeamSet: string;
+    restricted: string;
+    restrictedHint: string;
+    settingsSaved: string;
+    settingsFailed: string;
+    visibilitySettings: string;
+  };
   // Competition schedule
   competition: {
     title: string;
@@ -462,6 +501,44 @@ export const en: Translations = {
     eventCreatedFromTemplate: 'Event created! ({sessions} sessions, {tasks} tasks)',
     templateCreateFailed: 'Failed to create event from template',
     cancel: 'Cancel',
+  },
+  eventAccess: {
+    visibility: 'Visibility',
+    public: 'Public',
+    publicDesc: 'Anyone can view and join this event',
+    inviteCode: 'Invite Code',
+    inviteCodeDesc: 'Only people with the invite code can join',
+    teamsOnly: 'Teams Only',
+    teamsOnlyDesc: 'Only members of invited teams can join',
+    codeOrTeams: 'Code or Teams',
+    codeOrTeamsDesc: 'Join with an invite code or as a member of an invited team',
+    inviteCodeLabel: 'Invite Code',
+    copyCode: 'Copy',
+    codeCopied: 'Copied!',
+    regenerateCode: 'Regenerate',
+    invitedTeams: 'Invited Teams',
+    addTeam: 'Add team',
+    teamPlaceholder: 'Team name...',
+    removeTeam: 'Remove',
+    members: 'Members',
+    memberCount: '{count} members',
+    joinEvent: 'Join Event',
+    leaveEvent: 'Leave Event',
+    leaveConfirm: 'Are you sure you want to leave this event?',
+    enterInviteCode: 'Enter Invite Code',
+    inviteCodePlaceholder: 'e.g. ABCD1234',
+    joinBtn: 'Join',
+    joining: 'Joining...',
+    joined: 'Joined',
+    joinFailed: 'Failed to join event',
+    invalidCode: 'Invalid invite code',
+    teamNotInvited: 'Your team is not invited to this event',
+    noTeamSet: 'Set your team in your profile first',
+    restricted: 'Restricted',
+    restrictedHint: 'You need an invite code or team membership to access this event',
+    settingsSaved: 'Visibility settings saved',
+    settingsFailed: 'Failed to save visibility settings',
+    visibilitySettings: 'Access Control',
   },
   notifications: {
     title: 'Notifications',
@@ -738,6 +815,44 @@ export const fi: Translations = {
     eventCreatedFromTemplate: 'Tapahtuma luotu! ({sessions} sessiota, {tasks} tehtävää)',
     templateCreateFailed: 'Tapahtuman luonti mallipohjasta epäonnistui',
     cancel: 'Peruuta',
+  },
+  eventAccess: {
+    visibility: 'Näkyvyys',
+    public: 'Julkinen',
+    publicDesc: 'Kuka tahansa voi nähdä ja liittyä tapahtumaan',
+    inviteCode: 'Kutsukoodi',
+    inviteCodeDesc: 'Vain kutsukoodin saaneet voivat liittyä',
+    teamsOnly: 'Vain joukkueet',
+    teamsOnlyDesc: 'Vain kutsuttujen joukkueiden jäsenet voivat liittyä',
+    codeOrTeams: 'Koodi tai joukkueet',
+    codeOrTeamsDesc: 'Liity kutsukoodilla tai kutsutun joukkueen jäsenenä',
+    inviteCodeLabel: 'Kutsukoodi',
+    copyCode: 'Kopioi',
+    codeCopied: 'Kopioitu!',
+    regenerateCode: 'Luo uusi',
+    invitedTeams: 'Kutsutut joukkueet',
+    addTeam: 'Lisää joukkue',
+    teamPlaceholder: 'Joukkueen nimi...',
+    removeTeam: 'Poista',
+    members: 'Jäsenet',
+    memberCount: '{count} jäsentä',
+    joinEvent: 'Liity tapahtumaan',
+    leaveEvent: 'Poistu tapahtumasta',
+    leaveConfirm: 'Haluatko varmasti poistua tästä tapahtumasta?',
+    enterInviteCode: 'Syötä kutsukoodi',
+    inviteCodePlaceholder: 'esim. ABCD1234',
+    joinBtn: 'Liity',
+    joining: 'Liitytään...',
+    joined: 'Liitytty',
+    joinFailed: 'Tapahtumaan liittyminen epäonnistui',
+    invalidCode: 'Virheellinen kutsukoodi',
+    teamNotInvited: 'Joukkuettasi ei ole kutsuttu tähän tapahtumaan',
+    noTeamSet: 'Aseta joukkueesi profiilissasi ensin',
+    restricted: 'Rajoitettu',
+    restrictedHint: 'Tarvitset kutsukoodin tai joukkuejäsenyyden päästäksesi tähän tapahtumaan',
+    settingsSaved: 'Näkyvyysasetukset tallennettu',
+    settingsFailed: 'Näkyvyysasetusten tallennus epäonnistui',
+    visibilitySettings: 'Pääsynhallinta',
   },
   notifications: {
     title: 'Ilmoitukset',

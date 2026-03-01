@@ -70,26 +70,37 @@ export default function VolunteerDashboardPage() {
   const [filterDay, setFilterDay] = useState<string>('all');
   const [timelineDate, setTimelineDate] = useState<string>('');
 
+  // Join modal state
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [joinEventId, setJoinEventId] = useState('');
+  const [joinCode, setJoinCode] = useState('');
+  const [joinLoading, setJoinLoading] = useState(false);
+  const [joinError, setJoinError] = useState('');
+  const [memberships, setMemberships] = useState<string[]>([]);
   // ───── data loading ─────
 
   useEffect(() => {
     async function loadInitial() {
       try {
         setLoading(true);
-        const [eventList, myAssignments, notifs] = await Promise.all([
+        const [eventList, myAssignments, notifs, myMemberships] = await Promise.all([
           apiClient.listEvents(),
           apiClient.getMyAssignments(),
           apiClient.getNotifications(5, 0).catch(() => ({ notifications: [], unreadCount: 0 })),
+          apiClient.getMyMemberships().catch((): string[] => []),
         ]);
         setEvents(eventList);
         setAssignments(myAssignments);
         setNotifications(notifs.notifications || []);
+        setMemberships(myMemberships);
 
         const urlEvent = searchParams.get('event');
         if (urlEvent && eventList.some((e: Event) => e.event_id === urlEvent)) {
           setCurrentEvent(urlEvent);
         } else if (eventList.length > 0) {
-          setCurrentEvent(eventList[0].event_id);
+          // Prefer first event user is a member of
+          const memberEvent = eventList.find((e: Event) => myMemberships.includes(e.event_id) || e.is_member);
+          setCurrentEvent(memberEvent ? memberEvent.event_id : eventList[0].event_id);
         }
       } catch (err: any) {
         setError(err.response?.data?.error || t.volunteerDashboard.failedToLoad);
@@ -102,6 +113,25 @@ export default function VolunteerDashboardPage() {
 
   useEffect(() => {
     if (!currentEvent) return;
+
+    // Check if user needs to join this event
+    const eventObj = events.find(e => e.event_id === currentEvent);
+    const isMember = memberships.includes(currentEvent) || eventObj?.is_member;
+
+    if (!isMember && eventObj) {
+      if (eventObj.visibility === 'public' || !eventObj.visibility) {
+        // Auto-join public events
+        apiClient.joinEvent(currentEvent).then(() => {
+          setMemberships(prev => [...prev, currentEvent]);
+        }).catch(() => {});
+      } else {
+        // Show join modal for restricted events
+        setJoinEventId(currentEvent);
+        setShowJoinModal(true);
+        return; // Don't load event data yet
+      }
+    }
+
     async function loadEventData() {
       try {
         const [available, eventSessions, eventTasks] = await Promise.all([
@@ -125,7 +155,7 @@ export default function VolunteerDashboardPage() {
       }
     }
     loadEventData();
-  }, [currentEvent]);
+  }, [currentEvent, memberships]);
 
   // ───── actions ─────
 
@@ -159,6 +189,23 @@ export default function VolunteerDashboardPage() {
       await refreshData();
     } catch (err: any) {
       setError(err.response?.data?.error || t.volunteerDashboard.failedToCancel);
+    }
+  };
+
+  const handleJoinEvent = async () => {
+    setJoinLoading(true);
+    setJoinError('');
+    try {
+      await apiClient.joinEvent(joinEventId, joinCode || undefined);
+      setMemberships(prev => [...prev, joinEventId]);
+      setShowJoinModal(false);
+      setJoinCode('');
+      setJoinError('');
+    } catch (err: any) {
+      const msg = err.response?.data?.error || t.eventAccess.joinFailed;
+      setJoinError(msg);
+    } finally {
+      setJoinLoading(false);
     }
   };
 
@@ -281,9 +328,15 @@ export default function VolunteerDashboardPage() {
               value={currentEvent}
               onChange={(e) => setCurrentEvent(e.target.value)}
             >
-              {events.map(evt => (
-                <option key={evt.event_id} value={evt.event_id}>{evt.name}</option>
-              ))}
+              {events.map(evt => {
+                const isMember = memberships.includes(evt.event_id) || evt.is_member;
+                const isRestricted = evt.visibility && evt.visibility !== 'public';
+                return (
+                  <option key={evt.event_id} value={evt.event_id}>
+                    {!isMember && isRestricted ? '🔒 ' : ''}{evt.name}
+                  </option>
+                );
+              })}
             </select>
           )}
 
@@ -552,6 +605,83 @@ export default function VolunteerDashboardPage() {
             </section>
           </div>
 
+        </div>
+      )}
+
+      {/* ─── JOIN EVENT MODAL ─── */}
+      {showJoinModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => { setShowJoinModal(false); }}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center mb-4">
+              <span className="text-4xl">🔒</span>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mt-2">{t.eventAccess.joinEvent}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t.eventAccess.restrictedHint}</p>
+            </div>
+
+            {(() => {
+              const evt = events.find(e => e.event_id === joinEventId);
+              const vis = evt?.visibility;
+              const needsCode = vis === 'invite_code' || vis === 'code_or_teams';
+              const needsTeam = vis === 'teams_only' || vis === 'code_or_teams';
+
+              return (
+                <div className="space-y-4">
+                  {evt && (
+                    <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-center">
+                      <p className="font-semibold text-gray-900 dark:text-white">{evt.name}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{formatDate(evt.start_date)} – {formatDate(evt.end_date)}</p>
+                    </div>
+                  )}
+
+                  {needsCode && (
+                    <div>
+                      <label className="label">{t.eventAccess.enterInviteCode}</label>
+                      <input
+                        type="text"
+                        className="input text-center font-mono text-lg tracking-widest uppercase"
+                        value={joinCode}
+                        onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                        placeholder={t.eventAccess.inviteCodePlaceholder}
+                        maxLength={8}
+                      />
+                    </div>
+                  )}
+
+                  {needsTeam && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                      {vis === 'code_or_teams'
+                        ? t.eventAccess.codeOrTeamsDesc
+                        : t.eventAccess.teamsOnlyDesc}
+                    </p>
+                  )}
+
+                  {joinError && (
+                    <div className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded text-sm text-center">
+                      {joinError}
+                    </div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => { setShowJoinModal(false); setJoinError(''); setJoinCode(''); }}
+                      className="btn-secondary flex-1"
+                    >
+                      {t.hub.cancelBtn}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleJoinEvent}
+                      className="btn-primary flex-1"
+                      disabled={joinLoading || (needsCode && !joinCode && vis === 'invite_code')}
+                    >
+                      {joinLoading ? t.eventAccess.joining : t.eventAccess.joinBtn}
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
         </div>
       )}
     </div>

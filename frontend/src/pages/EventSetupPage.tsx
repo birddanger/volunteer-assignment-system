@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useI18n } from '../i18n';
 import apiClient from '../services/apiClient';
-import { Event, Session, Task, EventTemplate } from '../types';
+import { Event, Session, Task, EventTemplate, EventVisibility } from '../types';
 import { formatDate, formatTime } from '../utils/dateFormat';
 
 export default function EventSetupPage() {
@@ -24,6 +24,16 @@ export default function EventSetupPage() {
   const [createFromTemplateId, setCreateFromTemplateId] = useState<string | null>(null);
   const [fromTemplateForm, setFromTemplateForm] = useState({ name: '', start_date: '', location: '' });
   const [templateMsg, setTemplateMsg] = useState('');
+
+  // Visibility state
+  const [visibilityMode, setVisibilityMode] = useState<EventVisibility>('public');
+  const [inviteCode, setInviteCode] = useState('');
+  const [invitedTeams, setInvitedTeams] = useState<string[]>([]);
+  const [newTeamInput, setNewTeamInput] = useState('');
+  const [memberCount, setMemberCount] = useState(0);
+  const [visibilityMsg, setVisibilityMsg] = useState('');
+  const [codeCopied, setCodeCopied] = useState(false);
+  const [visibilityLoading, setVisibilityLoading] = useState(false);
 
   // Form states
   const [eventForm, setEventForm] = useState({
@@ -119,6 +129,63 @@ export default function EventSetupPage() {
   useEffect(() => {
     if (tab === 'templates') loadTemplates();
   }, [tab]);
+
+  // Load visibility settings when event is selected
+  useEffect(() => {
+    if (selectedEvent) {
+      loadVisibility(selectedEvent);
+    }
+  }, [selectedEvent]);
+
+  const loadVisibility = async (eventId: string) => {
+    try {
+      const data = await apiClient.getEventVisibility(eventId);
+      setVisibilityMode(data.visibility || 'public');
+      setInviteCode(data.invite_code || '');
+      setInvitedTeams(data.invited_teams || []);
+      setMemberCount(data.member_count || 0);
+    } catch {
+      // Non-fatal — visibility might not be set yet
+      setVisibilityMode('public');
+      setInviteCode('');
+      setInvitedTeams([]);
+      setMemberCount(0);
+    }
+  };
+
+  const handleSaveVisibility = async () => {
+    if (!selectedEvent) return;
+    setVisibilityLoading(true);
+    setVisibilityMsg('');
+    try {
+      const result = await apiClient.updateEventVisibility(selectedEvent, visibilityMode, invitedTeams);
+      setInviteCode(result.invite_code || '');
+      setVisibilityMsg(t.eventAccess.settingsSaved);
+      setTimeout(() => setVisibilityMsg(''), 3000);
+    } catch {
+      setVisibilityMsg(t.eventAccess.settingsFailed);
+    } finally {
+      setVisibilityLoading(false);
+    }
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(inviteCode);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 2000);
+  };
+
+  const handleAddTeam = () => {
+    const team = newTeamInput.trim();
+    if (team && !invitedTeams.includes(team)) {
+      setInvitedTeams([...invitedTeams, team]);
+      setNewTeamInput('');
+    }
+  };
+
+  const handleRemoveTeam = (team: string) => {
+    setInvitedTeams(invitedTeams.filter(t => t !== team));
+  };
 
   const handleSaveAsTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -357,6 +424,11 @@ export default function EventSetupPage() {
                       <p className="font-semibold text-gray-900 dark:text-white">{event.name}</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">{formatDate(event.start_date)} {t.common.to} {formatDate(event.end_date)}</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">{event.location}</p>
+                      {event.visibility && event.visibility !== 'public' && (
+                        <span className="inline-block mt-1 text-xs px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full">
+                          🔒 {event.visibility === 'invite_code' ? t.eventAccess.inviteCode : event.visibility === 'teams_only' ? t.eventAccess.teamsOnly : t.eventAccess.codeOrTeams}
+                        </span>
+                      )}
                     </div>
                     <button
                       onClick={(e) => {
@@ -375,6 +447,112 @@ export default function EventSetupPage() {
               ))}
             </div>
           </div>
+
+          {/* Visibility Settings Panel */}
+          {selectedEvent && (
+            <div className="card md:col-span-2">
+              <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">{t.eventAccess.visibilitySettings}</h2>
+              <div className="space-y-4">
+                {/* Visibility Mode Selector */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {([
+                    { value: 'public', label: t.eventAccess.public, desc: t.eventAccess.publicDesc, icon: '🌍' },
+                    { value: 'invite_code', label: t.eventAccess.inviteCode, desc: t.eventAccess.inviteCodeDesc, icon: '🔑' },
+                    { value: 'teams_only', label: t.eventAccess.teamsOnly, desc: t.eventAccess.teamsOnlyDesc, icon: '👥' },
+                    { value: 'code_or_teams', label: t.eventAccess.codeOrTeams, desc: t.eventAccess.codeOrTeamsDesc, icon: '🔑👥' },
+                  ] as const).map(opt => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setVisibilityMode(opt.value as EventVisibility)}
+                      className={`p-3 rounded-lg border-2 text-left transition-colors ${
+                        visibilityMode === opt.value
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                      }`}
+                    >
+                      <div className="text-lg mb-1">{opt.icon}</div>
+                      <div className="font-medium text-sm text-gray-900 dark:text-white">{opt.label}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{opt.desc}</div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Invite Code Display */}
+                {(visibilityMode === 'invite_code' || visibilityMode === 'code_or_teams') && inviteCode && (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{t.eventAccess.inviteCodeLabel}:</span>
+                    <code className="text-lg font-mono font-bold tracking-wider text-blue-600 dark:text-blue-400">{inviteCode}</code>
+                    <button
+                      type="button"
+                      onClick={handleCopyCode}
+                      className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                    >
+                      {codeCopied ? `✓ ${t.eventAccess.codeCopied}` : `📋 ${t.eventAccess.copyCode}`}
+                    </button>
+                  </div>
+                )}
+
+                {/* Invited Teams */}
+                {(visibilityMode === 'teams_only' || visibilityMode === 'code_or_teams') && (
+                  <div>
+                    <label className="label">{t.eventAccess.invitedTeams}</label>
+                    <div className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        className="input flex-1"
+                        value={newTeamInput}
+                        onChange={(e) => setNewTeamInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTeam(); } }}
+                        placeholder={t.eventAccess.teamPlaceholder}
+                      />
+                      <button type="button" onClick={handleAddTeam} className="btn-secondary text-sm whitespace-nowrap">
+                        + {t.eventAccess.addTeam}
+                      </button>
+                    </div>
+                    {invitedTeams.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {invitedTeams.map(team => (
+                          <span key={team} className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-full text-sm">
+                            {team}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTeam(team)}
+                              className="text-purple-400 hover:text-red-500 dark:hover:text-red-400 ml-1"
+                            >
+                              ✕
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Member count + Save */}
+                <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {t.eventAccess.memberCount.replace('{count}', String(memberCount))}
+                  </span>
+                  <div className="flex items-center gap-3">
+                    {visibilityMsg && (
+                      <span className={`text-sm ${visibilityMsg.includes('Failed') || visibilityMsg.includes('epäonnistui') ? 'text-red-600' : 'text-green-600'}`}>
+                        {visibilityMsg}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleSaveVisibility}
+                      className="btn-primary text-sm"
+                      disabled={visibilityLoading}
+                    >
+                      {visibilityLoading ? t.eventSetup.creating : '💾 ' + t.eventAccess.visibilitySettings}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Save as Template Modal */}
           {saveTemplateModal && (

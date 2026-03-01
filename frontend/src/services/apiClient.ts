@@ -306,6 +306,43 @@ class APIClient {
     const response = await this.client.patch(`/users/${userId}/role`, { is_organizer });
     return response.data;
   }
+
+  // ───── Event Memberships ─────
+
+  async getMyMemberships(): Promise<string[]> {
+    const response = await this.client.get('/memberships/my-memberships');
+    return response.data;
+  }
+
+  async getEventVisibility(eventId: string) {
+    const response = await this.client.get(`/memberships/${eventId}/visibility`);
+    return response.data;
+  }
+
+  async updateEventVisibility(eventId: string, visibility: string, invited_teams?: string[]) {
+    const response = await this.client.patch(`/memberships/${eventId}/visibility`, {
+      visibility,
+      invited_teams,
+    });
+    return response.data;
+  }
+
+  async joinEvent(eventId: string, inviteCode?: string) {
+    const response = await this.client.post(`/memberships/${eventId}/join`, {
+      invite_code: inviteCode,
+    });
+    return response.data;
+  }
+
+  async leaveEvent(eventId: string) {
+    const response = await this.client.delete(`/memberships/${eventId}/leave`);
+    return response.data;
+  }
+
+  async listEventMembers(eventId: string) {
+    const response = await this.client.get(`/memberships/${eventId}/members`);
+    return response.data;
+  }
 }
 
 export default new APIClient();

@@ -171,6 +171,33 @@ export async function setupDatabase() {
     );
   `);
 
+  // Event visibility columns (safe to run multiple times)
+  await query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS visibility VARCHAR(20) DEFAULT 'public';`);
+  await query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS invite_code VARCHAR(20);`);
+
+  // Event memberships: tracks which users have joined which events
+  await query(`
+    CREATE TABLE IF NOT EXISTS event_memberships (
+      membership_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      event_id UUID NOT NULL REFERENCES events(event_id) ON DELETE CASCADE,
+      user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+      joined_via VARCHAR(20) NOT NULL DEFAULT 'public',
+      joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(event_id, user_id)
+    );
+  `);
+
+  // Event teams: which teams are invited to restricted events
+  await query(`
+    CREATE TABLE IF NOT EXISTS event_teams (
+      event_id UUID NOT NULL REFERENCES events(event_id) ON DELETE CASCADE,
+      team_name VARCHAR(255) NOT NULL,
+      invited_by UUID NOT NULL REFERENCES users(user_id),
+      invited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY(event_id, team_name)
+    );
+  `);
+
   // Create indexes
   await query(`CREATE INDEX IF NOT EXISTS idx_competition_entries_event_id ON competition_entries(event_id);`);
   await query(`CREATE INDEX IF NOT EXISTS idx_competition_entries_date ON competition_entries(event_id, scheduled_date);`);
@@ -186,6 +213,9 @@ export async function setupDatabase() {
   await query(`CREATE INDEX IF NOT EXISTS idx_in_app_notifications_user_id ON in_app_notifications(user_id);`);
   await query(`CREATE INDEX IF NOT EXISTS idx_in_app_notifications_unread ON in_app_notifications(user_id, is_read) WHERE is_read = FALSE;`);
   await query(`CREATE INDEX IF NOT EXISTS idx_event_templates_created_by ON event_templates(created_by);`);
+  await query(`CREATE INDEX IF NOT EXISTS idx_event_memberships_event_id ON event_memberships(event_id);`);
+  await query(`CREATE INDEX IF NOT EXISTS idx_event_memberships_user_id ON event_memberships(user_id);`);
+  await query(`CREATE INDEX IF NOT EXISTS idx_event_teams_event_id ON event_teams(event_id);`);
 
   console.log('Database setup complete!');
 }

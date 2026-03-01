@@ -23,6 +23,13 @@ export async function createEvent(req: AuthenticatedRequest, res: Response) {
       [eventId, name, start_date, end_date, location, description || null, req.user.user_id]
     );
 
+    // Auto-create membership for event creator
+    await query(
+      `INSERT INTO event_memberships (membership_id, event_id, user_id, joined_via)
+       VALUES ($1, $2, $3, 'public') ON CONFLICT DO NOTHING`,
+      [uuidv4(), eventId, req.user.user_id]
+    );
+
     res.status(201).json({
       event_id: eventId,
       name,
@@ -55,8 +62,27 @@ export async function getEvent(req: AuthenticatedRequest, res: Response) {
 
 export async function listEvents(req: AuthenticatedRequest, res: Response) {
   try {
-    const result = await query('SELECT * FROM events ORDER BY start_date DESC LIMIT 10');
-    res.json(result.rows);
+    const userId = req.user?.user_id;
+
+    // Return all events with membership flag
+    const result = await query(
+      `SELECT e.*,
+              CASE WHEN m.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_member
+       FROM events e
+       LEFT JOIN event_memberships m ON m.event_id = e.event_id AND m.user_id = $1
+       ORDER BY e.start_date DESC
+       LIMIT 50`,
+      [userId]
+    );
+
+    // For organizers, also return invite codes; for others hide them
+    const isOrganizer = req.user?.is_organizer;
+    const events = result.rows.map(ev => ({
+      ...ev,
+      invite_code: isOrganizer ? ev.invite_code : undefined,
+    }));
+
+    res.json(events);
   } catch (error) {
     console.error('List events error:', error);
     res.status(500).json({ error: 'Failed to list events' });

@@ -18,6 +18,28 @@ export interface Event {
   description?: string;
   created_by: string;
   created_at: string;
+  visibility?: 'public' | 'invite_code' | 'teams_only' | 'code_or_teams';
+  invite_code?: string;
+  is_member?: boolean;
+}
+
+export type EventVisibility = 'public' | 'invite_code' | 'teams_only' | 'code_or_teams';
+
+export interface EventVisibilitySettings {
+  visibility: EventVisibility;
+  invite_code?: string;
+  invited_teams: string[];
+  member_count: number;
+}
+
+export interface EventMember {
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  swimmer_team?: string;
+  joined_via: string;
+  joined_at: string;
 }
 
 export interface Session {
