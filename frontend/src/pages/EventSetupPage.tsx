@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useI18n } from '../i18n';
 import apiClient from '../services/apiClient';
 import { Event, Session, Task, EventTemplate } from '../types';
-import { formatDate } from '../utils/dateFormat';
+import { formatDate, formatTime } from '../utils/dateFormat';
 
 export default function EventSetupPage() {
   const { user } = useAuth();
@@ -511,7 +511,7 @@ export default function EventSetupPage() {
                   }`}
                 >
                   <p className="font-semibold">{session.name}</p>
-                  <p className="text-sm text-gray-600">{session.date} • {session.start_time}-{session.end_time}</p>
+                  <p className="text-sm text-gray-600">{formatDate(session.date)} • {formatTime(session.start_time)}-{formatTime(session.end_time)}</p>
                   {session.location && <p className="text-sm text-gray-600">{session.location}</p>}
                 </div>
               ))}
@@ -559,7 +559,7 @@ export default function EventSetupPage() {
                   <option value="" disabled>— {t.eventSetup.selectSession} —</option>
                   {sessions.map(session => (
                     <option key={session.session_id} value={session.session_id}>
-                      {session.name} — {session.date} ({session.start_time}–{session.end_time})
+                      {session.name} — {formatDate(session.date)} ({formatTime(session.start_time)}–{formatTime(session.end_time)})
                     </option>
                   ))}
                 </select>
@@ -645,9 +645,9 @@ export default function EventSetupPage() {
                   <div key={task.task_id} className="p-4 rounded border border-gray-200">
                     <p className="font-semibold">{task.title}</p>
                     {task.session_name && (
-                      <p className="text-sm text-blue-600">{task.session_name} — {task.date}</p>
+                      <p className="text-sm text-blue-600">{task.session_name} — {formatDate(task.date || '')}</p>
                     )}
-                    <p className="text-sm text-gray-600">{task.start_time}–{task.end_time}</p>
+                    <p className="text-sm text-gray-600">{formatTime(task.start_time)}–{formatTime(task.end_time)}</p>
                     <p className="text-sm text-gray-600">{t.common.volunteers}: {task.required_volunteers}</p>
                   </div>
                 ))
