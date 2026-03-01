@@ -294,6 +294,18 @@ class APIClient {
     const response = await this.client.get(`/events/${eventId}/competition/disciplines`);
     return response.data;
   }
+
+  // ───── User management (admin) ─────
+
+  async listUsers() {
+    const response = await this.client.get('/users');
+    return response.data;
+  }
+
+  async updateUserRole(userId: string, is_organizer: boolean) {
+    const response = await this.client.patch(`/users/${userId}/role`, { is_organizer });
+    return response.data;
+  }
 }
 
 export default new APIClient();

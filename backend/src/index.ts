@@ -15,6 +15,7 @@ import assignmentRoutes from './routes/assignmentRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import templateRoutes from './routes/templateRoutes.js';
 import competitionRoutes from './routes/competitionRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 const app = express();
 
@@ -69,6 +70,7 @@ app.use('/api/assignments', assignmentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/events/:eventId/competition', competitionRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

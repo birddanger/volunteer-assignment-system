@@ -13,6 +13,33 @@ export interface Translations {
     login: string;
     register: string;
     competition: string;
+    users: string;
+  };
+  // User management
+  userManagement: {
+    title: string;
+    subtitle: string;
+    totalUsers: string;
+    admins: string;
+    volunteers: string;
+    searchPlaceholder: string;
+    name: string;
+    team: string;
+    role: string;
+    registered: string;
+    actions: string;
+    admin: string;
+    volunteer: string;
+    you: string;
+    grantAdmin: string;
+    revokeAdmin: string;
+    confirmGrantAdmin: string;
+    confirmRevokeAdmin: string;
+    adminGranted: string;
+    adminRevoked: string;
+    loadFailed: string;
+    updateFailed: string;
+    noUsers: string;
   };
   // Common
   common: {
@@ -277,6 +304,32 @@ export const en: Translations = {
     login: 'Login',
     register: 'Register',
     competition: 'Competition',
+    users: 'Users',
+  },
+  userManagement: {
+    title: 'User Management',
+    subtitle: 'View all registered users and manage admin privileges.',
+    totalUsers: 'Total Users',
+    admins: 'Admins',
+    volunteers: 'Volunteers',
+    searchPlaceholder: 'Search by name, email, or team...',
+    name: 'Name',
+    team: 'Team',
+    role: 'Role',
+    registered: 'Registered',
+    actions: 'Actions',
+    admin: 'Admin',
+    volunteer: 'Volunteer',
+    you: 'you',
+    grantAdmin: 'Grant Admin',
+    revokeAdmin: 'Revoke Admin',
+    confirmGrantAdmin: 'Grant admin privileges to {name}?',
+    confirmRevokeAdmin: 'Revoke admin privileges from {name}?',
+    adminGranted: '{name} is now an admin.',
+    adminRevoked: '{name} is no longer an admin.',
+    loadFailed: 'Failed to load users.',
+    updateFailed: 'Failed to update user role.',
+    noUsers: 'No users found.',
   },
   common: {
     loading: 'Loading...',
@@ -527,6 +580,32 @@ export const fi: Translations = {
     login: 'Kirjaudu',
     register: 'Rekisteröidy',
     competition: 'Kilpailu',
+    users: 'Käyttäjät',
+  },
+  userManagement: {
+    title: 'Käyttäjähallinta',
+    subtitle: 'Näytä kaikki rekisteröityneet käyttäjät ja hallinnoi ylläpitäjäoikeuksia.',
+    totalUsers: 'Käyttäjiä yht.',
+    admins: 'Ylläpitäjät',
+    volunteers: 'Vapaaehtoiset',
+    searchPlaceholder: 'Hae nimellä, sähköpostilla tai joukkueella...',
+    name: 'Nimi',
+    team: 'Joukkue',
+    role: 'Rooli',
+    registered: 'Rekisteröitynyt',
+    actions: 'Toiminnot',
+    admin: 'Ylläpitäjä',
+    volunteer: 'Vapaaehtoinen',
+    you: 'sinä',
+    grantAdmin: 'Anna oikeudet',
+    revokeAdmin: 'Poista oikeudet',
+    confirmGrantAdmin: 'Annetaanko ylläpitäjäoikeudet käyttäjälle {name}?',
+    confirmRevokeAdmin: 'Poistetaanko ylläpitäjäoikeudet käyttäjältä {name}?',
+    adminGranted: '{name} on nyt ylläpitäjä.',
+    adminRevoked: '{name} ei ole enää ylläpitäjä.',
+    loadFailed: 'Käyttäjien lataus epäonnistui.',
+    updateFailed: 'Käyttäjäroolin päivitys epäonnistui.',
+    noUsers: 'Käyttäjiä ei löytynyt.',
   },
   common: {
     loading: 'Ladataan...',

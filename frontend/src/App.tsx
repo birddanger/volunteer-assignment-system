@@ -12,6 +12,7 @@ import CalendarPage from './pages/CalendarPage';
 import VolunteerProfilePage from './pages/VolunteerProfilePage';
 import NotificationCenter from './components/NotificationCenter';
 import CompetitionSchedulePage from './pages/CompetitionSchedulePage';
+import UserManagementPage from './pages/UserManagementPage';
 
 // ---------- Dark mode hook ----------
 function useDarkMode() {
@@ -124,6 +125,7 @@ function Navigation() {
                 <>
                   <Link to="/setup" className="text-blue-600 dark:text-blue-400 hover:underline">{t.nav.setup}</Link>
                   <Link to="/admin" className="text-blue-600 dark:text-blue-400 hover:underline">{t.nav.dashboard}</Link>
+                  <Link to="/users" className="text-blue-600 dark:text-blue-400 hover:underline">{t.nav.users}</Link>
                 </>
               )}
               {!user.is_organizer && (
@@ -194,6 +196,14 @@ export default function App() {
             element={
               <ProtectedRoute requireOrganizer={true}>
                 <AdminDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute requireOrganizer={true}>
+                <UserManagementPage />
               </ProtectedRoute>
             }
           />
