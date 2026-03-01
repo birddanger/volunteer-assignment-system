@@ -3,17 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useI18n } from '../i18n';
 import apiClient from '../services/apiClient';
 import { Event, CompetitionEntry } from '../types';
-
-function formatDateLabel(dateStr: string, language: string): string {
-  const d = new Date(dateStr.split('T')[0] + 'T00:00:00');
-  const days_en = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const days_fi = ['Su', 'Ma', 'Ti', 'Ke', 'To', 'Pe', 'La'];
-  const months_en = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const months_fi = ['Tammi', 'Helmi', 'Maalis', 'Huhti', 'Touko', 'Kesä', 'Heinä', 'Elo', 'Syys', 'Loka', 'Marras', 'Joulu'];
-  const days = language === 'fi' ? days_fi : days_en;
-  const months = language === 'fi' ? months_fi : months_en;
-  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
-}
+import { formatDateLabel, formatTime } from '../utils/dateFormat';
 
 const EMPTY_FORM = {
   team_name: '',
@@ -490,11 +480,11 @@ export default function CompetitionSchedulePage() {
                       {/* Time */}
                       <div className="w-20 flex-shrink-0 text-center">
                         <div className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                          {entry.scheduled_time?.slice(0, 5)}
+                          {formatTime(entry.scheduled_time || '')}
                         </div>
                         {entry.estimated_end_time && (
                           <div className="text-xs text-gray-400 dark:text-gray-500">
-                            – {entry.estimated_end_time.slice(0, 5)}
+                            – {formatTime(entry.estimated_end_time || '')}
                           </div>
                         )}
                       </div>

@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useI18n } from '../i18n';
 import apiClient from '../services/apiClient';
 import { AssignmentHistoryItem, ProfileStats } from '../types';
+import { formatDate, formatTime } from '../utils/dateFormat';
 
 export default function VolunteerProfilePage() {
   const { user } = useAuth();
@@ -49,9 +50,7 @@ export default function VolunteerProfilePage() {
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString();
-  };
+  // formatDate imported from ../utils/dateFormat
 
   if (!user) return null;
 
@@ -193,7 +192,7 @@ export default function VolunteerProfilePage() {
                       {item.event_name} · {item.session_name}
                     </p>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                      {formatDate(item.date)} · {item.start_time}–{item.end_time} · {item.location}
+                      {formatDate(item.date)} · {formatTime(item.start_time)}–{formatTime(item.end_time)} · {item.location}
                     </p>
                   </div>
                 </div>

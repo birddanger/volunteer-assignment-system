@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useI18n } from '../i18n';
 import { Task, Assignment, Session } from '../types';
+import { formatDateLabel, formatTime } from '../utils/dateFormat';
 
 interface TimelineViewProps {
   sessions: Session[];
@@ -31,16 +32,7 @@ function fillColor(assigned: number, required: number): { bg: string; border: st
   return { bg: 'bg-red-50 dark:bg-red-900/30', border: 'border-red-400 dark:border-red-600', text: 'text-red-700 dark:text-red-300' };
 }
 
-function formatDateLabel(dateStr: string, language: string): string {
-  const d = new Date(dateStr + 'T00:00:00');
-  const days_en = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const days_fi = ['Su', 'Ma', 'Ti', 'Ke', 'To', 'Pe', 'La'];
-  const months_en = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const months_fi = ['Tammi', 'Helmi', 'Maalis', 'Huhti', 'Touko', 'Kesä', 'Heinä', 'Elo', 'Syys', 'Loka', 'Marras', 'Joulu'];
-  const days = language === 'fi' ? days_fi : days_en;
-  const months = language === 'fi' ? months_fi : months_en;
-  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
-}
+// formatDateLabel imported from ../utils/dateFormat
 
 export default function TimelineView({
   sessions,
@@ -237,7 +229,7 @@ export default function TimelineView({
                               </span>
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                              {task.start_time}–{task.end_time}
+                              {formatTime(task.start_time)}–{formatTime(task.end_time)}
                             </div>
                             {/* Fill bar */}
                             <div className="mt-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -302,7 +294,7 @@ export default function TimelineView({
                           style={{ left: `${leftPct}%`, width: `${Math.max(widthPct, 5)}%` }}
                         >
                           <span className="text-[10px] font-medium text-white truncate px-2">
-                            {a.start_time}–{a.end_time}
+                            {formatTime(a.start_time || '')}–{formatTime(a.end_time || '')}
                           </span>
                         </div>
                       </div>

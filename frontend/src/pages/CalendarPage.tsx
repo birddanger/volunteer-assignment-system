@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useI18n } from '../i18n';
 import apiClient from '../services/apiClient';
 import { Event, CompetitionEntry } from '../types';
+import { formatDate, formatTime } from '../utils/dateFormat';
 
 const MONTH_NAMES_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const MONTH_NAMES_FI = ['Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Kesäkuu', 'Heinäkuu', 'Elokuu', 'Syyskuu', 'Lokakuu', 'Marraskuu', 'Joulukuu'];
@@ -248,7 +249,7 @@ export default function CalendarPage() {
                             key={`${event.event_id}-${j}`}
                             onClick={() => navigateToEvent(event.event_id)}
                             className={`text-xs px-1.5 py-0.5 rounded ${color.bg} ${color.text} truncate border-l-2 ${color.border} cursor-pointer hover:opacity-80 transition-opacity`}
-                            title={`${event.name}\n${event.start_date} → ${event.end_date}\n📍 ${event.location}\n${language === 'fi' ? 'Klikkaa nähdäksesi' : 'Click to view'}`}
+                            title={`${event.name}\n${formatDate(event.start_date)} → ${formatDate(event.end_date)}\n📍 ${event.location}\n${language === 'fi' ? 'Klikkaa nähdäksesi' : 'Click to view'}`}
                           >
                             {event.name}
                           </div>
@@ -260,7 +261,7 @@ export default function CalendarPage() {
                           onClick={() => navigate('/competition')}
                           className="text-xs px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 truncate border-l-2 border-amber-400 cursor-pointer hover:opacity-80 transition-opacity"
                           title={[
-                            entry.scheduled_time?.slice(0, 5),
+                            formatTime(entry.scheduled_time || ''),
                             entry.discipline,
                             entry.team_name && `🏊 ${entry.team_name}`,
                             entry.swimmer_name && `👤 ${entry.swimmer_name}`,
@@ -268,7 +269,7 @@ export default function CalendarPage() {
                             entry.pool_location && `📍 ${entry.pool_location}`,
                           ].filter(Boolean).join(' · ')}
                         >
-                          🏊 {entry.scheduled_time?.slice(0, 5)} {entry.discipline}
+                          🏊 {formatTime(entry.scheduled_time || '')} {entry.discipline}
                         </div>
                       ))}
                     </div>
@@ -327,7 +328,7 @@ export default function CalendarPage() {
                   <div>
                     <p className="font-medium text-gray-900 dark:text-gray-100">{event.name}</p>
                     <p className="text-sm text-gray-500">
-                      📅 {event.start_date} {t.common.to} {event.end_date} • 📍 {event.location}
+                      📅 {formatDate(event.start_date)} {t.common.to} {formatDate(event.end_date)} • 📍 {event.location}
                     </p>
                   </div>
                 </div>

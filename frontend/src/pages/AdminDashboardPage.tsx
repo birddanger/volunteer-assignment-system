@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useI18n } from '../i18n';
 import apiClient from '../services/apiClient';
 import { Event } from '../types';
+import { formatDate, formatTime } from '../utils/dateFormat';
 
 // ---------- Sub-tab types ----------
 type AdminTab = 'overview' | 'manage' | 'print';
@@ -328,7 +329,7 @@ export default function AdminDashboardPage() {
                         <div className="flex justify-between items-center mb-1">
                           <span className="font-medium text-sm dark:text-gray-200">{session.session_name}</span>
                           <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {session.date} • {session.total_tasks} {t.adminDashboard.tasks}
+                            {formatDate(session.date)} • {session.total_tasks} {t.adminDashboard.tasks}
                           </span>
                         </div>
                         <FillBar
@@ -441,7 +442,7 @@ export default function AdminDashboardPage() {
                               <div>
                                 <h4 className="font-semibold dark:text-gray-100">{task.title}</h4>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {task.session_name} • {task.date} • {task.start_time}–{task.end_time}
+                                  {task.session_name} • {formatDate(task.date)} • {formatTime(task.start_time)}–{formatTime(task.end_time)}
                                 </p>
                               </div>
                               <div className="flex items-center gap-2">
@@ -500,7 +501,7 @@ export default function AdminDashboardPage() {
                 <div className="hidden print:block mb-6">
                   <h1 className="text-2xl font-bold">{events.find(e => e.event_id === selectedEvent)?.name}</h1>
                   <p className="text-gray-600">
-                    {events.find(e => e.event_id === selectedEvent)?.start_date} – {events.find(e => e.event_id === selectedEvent)?.end_date}
+                    {formatDate(events.find(e => e.event_id === selectedEvent)?.start_date || '')} – {formatDate(events.find(e => e.event_id === selectedEvent)?.end_date || '')}
                   </p>
                 </div>
 
@@ -512,7 +513,7 @@ export default function AdminDashboardPage() {
                   return (
                     <div key={session.session_id} className="mb-8 break-inside-avoid">
                       <h3 className="text-lg font-bold border-b-2 border-gray-300 pb-2 mb-3">
-                        {session.session_name} — {session.date}
+                        {session.session_name} — {formatDate(session.date)}
                       </h3>
                       <table className="w-full text-sm">
                         <thead>
@@ -529,7 +530,7 @@ export default function AdminDashboardPage() {
                             return (
                               <tr key={task.task_id} className="border-b border-gray-100">
                                 <td className="py-2 px-2 font-medium">{task.title}</td>
-                                <td className="py-2 px-2">{task.start_time}–{task.end_time}</td>
+                                <td className="py-2 px-2">{formatTime(task.start_time)}–{formatTime(task.end_time)}</td>
                                 <td className="py-2 px-2">{task.assigned_count}/{task.required_volunteers}</td>
                                 <td className="py-2 px-2">
                                   {assigned.length > 0

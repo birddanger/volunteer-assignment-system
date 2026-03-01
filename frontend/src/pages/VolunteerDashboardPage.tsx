@@ -5,6 +5,7 @@ import { useI18n } from '../i18n';
 import apiClient from '../services/apiClient';
 import { Event, Task, Assignment, Session, InAppNotification } from '../types';
 import TimelineView from '../components/TimelineView';
+import { formatDate, formatDateLabel, formatTime } from '../utils/dateFormat';
 
 type ViewMode = 'hub' | 'timeline';
 
@@ -236,16 +237,9 @@ export default function VolunteerDashboardPage() {
 
   // ───── format helpers ─────
 
-  function formatDate(dateStr: string | undefined): string {
+  function fmtDate(dateStr: string | undefined): string {
     if (!dateStr) return '';
-    const d = new Date(dateStr.split('T')[0] + 'T00:00:00');
-    const days_en = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const days_fi = ['Su', 'Ma', 'Ti', 'Ke', 'To', 'Pe', 'La'];
-    const months_en = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const months_fi = ['Tammi', 'Helmi', 'Maalis', 'Huhti', 'Touko', 'Kesä', 'Heinä', 'Elo', 'Syys', 'Loka', 'Marras', 'Joulu'];
-    const days = language === 'fi' ? days_fi : days_en;
-    const months = language === 'fi' ? months_fi : months_en;
-    return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+    return formatDateLabel(dateStr, language);
   }
 
   // ───── render ─────
@@ -376,7 +370,7 @@ export default function VolunteerDashboardPage() {
                           )}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                          {formatDate(a.date)} · {a.start_time}–{a.end_time} · {a.location}
+                          {fmtDate(a.date)} · {formatTime(a.start_time || '')}–{formatTime(a.end_time || '')} · {a.location}
                         </div>
                       </div>
                       <div className="flex-shrink-0 flex items-center gap-3">
@@ -442,7 +436,7 @@ export default function VolunteerDashboardPage() {
                 >
                   <option value="all">{t.hub.anyDay}</option>
                   {availableDates.filter(d => d !== 'all').map(d => (
-                    <option key={d} value={d}>{formatDate(d)}</option>
+                    <option key={d} value={d}>{formatDateLabel(d, language)}</option>
                   ))}
                 </select>
               )}
@@ -476,7 +470,7 @@ export default function VolunteerDashboardPage() {
                           </span>
                         </div>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                          {formatDate(task.date)} · {task.start_time}–{task.end_time} · {task.session_name}
+                          {fmtDate(task.date)} · {formatTime(task.start_time)}–{formatTime(task.end_time)} · {task.session_name}
                         </p>
                       </div>
 

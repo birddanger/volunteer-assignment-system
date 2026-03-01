@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useI18n } from '../i18n';
 import apiClient from '../services/apiClient';
 import { Event, Session, Task, EventTemplate } from '../types';
+import { formatDate } from '../utils/dateFormat';
 
 export default function EventSetupPage() {
   const { user } = useAuth();
@@ -354,7 +355,7 @@ export default function EventSetupPage() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="font-semibold text-gray-900 dark:text-white">{event.name}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{event.start_date} {t.common.to} {event.end_date}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{formatDate(event.start_date)} {t.common.to} {formatDate(event.end_date)}</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">{event.location}</p>
                     </div>
                     <button
@@ -433,7 +434,7 @@ export default function EventSetupPage() {
                   <option value="" disabled>— {t.eventSetup.selectEvent} —</option>
                   {events.map(event => (
                     <option key={event.event_id} value={event.event_id}>
-                      {event.name} ({event.start_date} {t.common.to} {event.end_date})
+                      {event.name} ({formatDate(event.start_date)} {t.common.to} {formatDate(event.end_date)})
                     </option>
                   ))}
                 </select>
@@ -542,7 +543,7 @@ export default function EventSetupPage() {
                   <option value="" disabled>— {t.eventSetup.selectEvent} —</option>
                   {events.map(event => (
                     <option key={event.event_id} value={event.event_id}>
-                      {event.name} ({event.start_date} {t.common.to} {event.end_date})
+                      {event.name} ({formatDate(event.start_date)} {t.common.to} {formatDate(event.end_date)})
                     </option>
                   ))}
                 </select>
