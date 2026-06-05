@@ -127,6 +127,7 @@ After seeding, these accounts are available:
 - `POST /api/auth/login` - Login
 - `GET /api/auth/profile` - Get user profile
 - `PUT /api/auth/profile` - Update profile
+- `PUT /api/auth/profile/password` - Change password
 
 ### Events
 - `POST /api/events` - Create event (organizers only)
